@@ -1,0 +1,136 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: #333;
+}
+
+/* Contenedor principal del perfil */
+.profile-container {
+    text-align: center;
+    width: 90%;
+    max-width: 600px;
+}
+
+/* Título "Mi perfil" */
+.profile-container h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #000000;
+    margin-bottom: 1rem;
+}
+
+/* Contenedor del ícono de usuario */
+.icon-wrapper {
+    font-size: 6rem; /* Tamaño grande para el ícono */
+    color: #6C3483; /* Mismo púrpura del login */
+    margin-bottom: 2rem;
+}
+
+/* Caja de datos del perfil */
+.profile-data {
+    background-color: #F4ECF7; /* Color lavanda pálido */
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: left;
+    margin-bottom: 2.5rem;
+}
+
+.profile-data p {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 12px 0;
+}
+
+/* Estilo para los datos reales (el span) */
+.profile-data p span {
+    font-weight: normal;
+    color: #555;
+    word-break: break-all; /* Evita que correos largos rompan el diseño */
+}
+
+/* Contenedor de los botones */
+.profile-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem; /* Espacio entre botones */
+}
+
+/* Estilo de los botones */
+.btn {
+    background-color: #E8DAEF; /* Lavanda más fuerte */
+    color: #000000;
+    border: none;
+    border-radius: 25px; /* Botones ovalados */
+    padding: 15px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    flex: 1; /* Hace que todos los botones ocupen el mismo espacio */
+}
+
+.btn:hover {
+    background-color: #D5BEE3; /* Un poco más oscuro al pasar el mouse */
+}
+
+/* Clase para ocultar elementos */
+.hidden {
+    display: none;
+}
+
+/* Estilos del formulario de edición */
+.profile-data.edit-form p {
+    font-weight: normal;
+    font-size: 1rem;
+}
+.profile-data.edit-form p strong {
+    font-weight: bold;
+}
+
+.profile-data.edit-form label {
+    display: block;
+    text-align: left;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 15px;
+}
+
+.profile-data.edit-form input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Importante */
+}
+
+/* Botones de guardar y cancelar */
+.btn-save {
+    background-color: #28a745; /* Verde */
+    color: white;
+}
+.btn-save:hover {
+    background-color: #218838;
+}
+
+.btn-cancel {
+    background-color: #dc3545; /* Rojo */
+    color: white;
+}
+.btn-cancel:hover {
+    background-color: #c82333;
+}
+
+/* Mensaje de error */
+.error {
+    color: #dc3545;
+    font-weight: bold;
+    margin-top: 10px;
+}

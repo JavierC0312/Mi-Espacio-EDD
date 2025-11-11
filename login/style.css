@@ -1,0 +1,126 @@
+/* Configuración general de la página */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+    margin: 0;
+}
+
+/* Contenedor principal del formulario */
+.login-container {
+    width: 450px;
+    padding: 2rem;
+}
+
+/* Título "Mi Espacio EDD" */
+h1 {
+    font-size: 3rem; 
+    font-weight: bold; 
+    font-style: italic; 
+    color: #000000; 
+    margin-bottom: 3rem;
+    text-align: left; 
+}
+
+/* Contenedor para cada fila del formulario (ícono + campo) */
+.form-row {
+    display: flex; 
+    align-items: flex-start; 
+    margin-bottom: 2rem;
+}
+
+/* Estilo del ícono (lado izquierdo) */
+.icon-wrapper {
+    font-size: 2.5rem; 
+    color: #6C3483; 
+    width: 60px; 
+    text-align: center;
+    margin-top: 25px; 
+}
+
+/* Estilo para los asteriscos '***' debajo del candado */
+.icon-wrapper span {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #6C3483; 
+    letter-spacing: 2px; 
+    margin-top: -5px; 
+}
+
+/* Contenedor del campo (lado derecho) */
+.input-wrapper {
+    flex: 1; 
+    text-align: left;
+}
+
+/* Etiquetas "Usuario:" y "Contraseña:" */
+.input-wrapper label {
+    display: block;
+    font-size: 1.2rem; 
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+/* Campos de texto */
+.input-wrapper input {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    background-color: #F4ECF7; 
+    border-radius: 8px; 
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+/* Contenedor especial para el campo de contraseña y el ícono del ojo */
+.password-field {
+    position: relative;
+}
+
+/* Posicionamiento del ícono del ojo DENTRO del campo */
+.password-field i {
+    position: absolute;
+    right: 15px; 
+    top: 50%; 
+    transform: translateY(-50%);
+    color: #6C3483; 
+    cursor: pointer; 
+    font-size: 1.2rem;
+}
+
+/* Enlace de "¿Olvidó su contraseña?" */
+.forgot-password {
+    display: block; 
+    text-align: left; 
+    margin-left: 60px; 
+    margin-top: -1rem; 
+    margin-bottom: 2rem;
+    color: #333;
+    text-decoration: underline;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* Botón de Ingresar */
+.login-button {
+    width: calc(100% - 60px); 
+    margin-left: 60px; 
+    padding: 15px;
+    background-color: #6C3483; 
+    color: white; 
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+    background-color: #512E5F; 
+}

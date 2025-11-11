@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expedientes</title>
+    <link rel="stylesheet" href="expedientes.css">
+    <script src="expedientes.js" defer></script>
+</head>
+<body>
+
+    <div class="container">
+        <header class="tabs">
+            <a href="expedientes.html" class="tab active">Expedientes</a>
+            <a href="solicitudes.html" class="tab">Mis solicitudes</a>
+        </header>
+
+        <main class="content-wrapper">
+            
+            <section class="left-panel">
+                <div class="periodo-filter">
+                    <label for="periodo-select">Período:</label>
+                    <div class="select-wrapper">
+                        <select id="periodo-select">
+                            <option value="">Cargando períodos...</option>
+                        </select>
+                        <div class="select-arrows">
+                            <span>&#x25B2;</span>
+                            <span>&#x25BC;</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="previews-list" id="document-previews">
+                    <p>Seleccione un período para ver los documentos.</p>
+                </div>
+            </section>
+
+            <section class="right-panel">
+                <div class="details-box" id="expediente-details">
+                    <p>No hay expediente seleccionado.</p>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary">Crear nuevo expediente</button>
+                    <button class="btn btn-secondary">Eliminar expediente</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+</body>
+</html>
