@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Expediente</title>
+    <link rel="stylesheet" href="expedientes.css">
+    <link rel="stylesheet" href="crear_expediente.css">
+    <script src="crear_expediente.js" defer></script>
+</head>
+<body>
+
+    <div class="container">
+        <header class="tabs">
+            <h1 class="tab">Crear Nuevo Expediente</h1>
+        </header>
+
+        <main class="content-wrapper">
+            <div class="form-container">
+                <form id="form-crear-expediente">
+                    <p>Período seleccionado: <strong id="periodo-nombre">Cargando...</strong></p>
+                    
+                    <label for="select-convocatoria">Seleccione una convocatoria:</label>
+                    <select id="select-convocatoria" name="id_convocatoria" required>
+                        <option value="">Cargando convocatorias...</option>
+                    </select>
+                    
+                    <p id="form-error" class="form-error"></p> <div class="form-buttons">
+                        <a href="expedientes.html" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Crear Expediente</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+</body>
+</html>

@@ -11,8 +11,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
 // Preparamos una respuesta por defecto
 $response = ['error' => 'No se encontraron períodos.'];
 
-// Consultamos todos los períodos escolares, ordenados por el más reciente
-$sql = "SELECT id_periodo, nombre_periodo FROM periodoscolares ORDER BY fecha_inicio DESC";
+$sql = "SELECT id_periodo, nombre_periodo FROM PeriodosEscolares ORDER BY fecha_inicio DESC";
 $result = $conn->query($sql);
 
 if ($result && $result->num_rows > 0) {

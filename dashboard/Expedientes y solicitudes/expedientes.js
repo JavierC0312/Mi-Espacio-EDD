@@ -1,107 +1,183 @@
-// Se ejecuta cuando el HTML se ha cargado
 document.addEventListener("DOMContentLoaded", function() {
     
-    // 1. Obtenemos referencias a los elementos del DOM
+    // 1. Referencias al DOM 
     const periodoSelect = document.getElementById('periodo-select');
-    const previewsContainer = document.getElementById('document-previews');
+    const expedienteList = document.getElementById('expediente-list');
     const detailsContainer = document.getElementById('expediente-details');
+    const btnCrear = document.getElementById('btn-crear');
+    const btnEliminar = document.getElementById('btn-eliminar');
+    
+    // 2. Referencias al DOM 
+    const modalBackdropDelete = document.getElementById('modal-backdrop-delete');
+    const modalDelete = document.getElementById('modal-delete');
+    const btnCancelDelete = document.getElementById('btn-cancel-delete');
+    const btnConfirmDelete = document.getElementById('btn-confirm-delete');
 
-    // 2. Función para cargar los períodos en el filtro
+    // 3. Variable de estado
+    let currentActiveExpedienteId = null;
+
+    // --- FUNCIÓN 1: Cargar Períodos ---
     async function loadPeriodos() {
         try {
-            // Subimos 2 niveles (de 'dashboard/Expedientes y solicitudes/' a la raíz)
             const response = await fetch('../../api_get_periodos.php');
             const periodos = await response.json();
-
-            if (periodos.error) {
-                periodoSelect.innerHTML = `<option value="">${periodos.error}</option>`;
-                return;
-            }
+            if (periodos.error) { throw new Error(periodos.error); }
 
             if (periodos.length > 0) {
-                periodoSelect.innerHTML = ''; // Limpiamos el "cargando"
+                periodoSelect.innerHTML = '';
                 periodos.forEach(periodo => {
                     const option = document.createElement('option');
                     option.value = periodo.id_periodo;
                     option.textContent = periodo.nombre_periodo;
                     periodoSelect.appendChild(option);
                 });
-                
-                // 3. Al cargar los períodos, cargamos el expediente del primer período
-                loadExpediente(periodoSelect.value);
+                loadExpedientes(periodoSelect.value);
             } else {
                 periodoSelect.innerHTML = '<option value="">No hay períodos</option>';
             }
-
         } catch (error) {
             console.error('Error al cargar períodos:', error);
             periodoSelect.innerHTML = '<option value="">Error al cargar</option>';
         }
     }
 
-    // 4. Función para cargar los detalles del expediente y sus documentos
-    async function loadExpediente(idPeriodo) {
+    // --- FUNCIÓN 2: Cargar LISTA DE EXPEDIENTES ---
+    async function loadExpedientes(idPeriodo) {
         if (!idPeriodo) {
-            detailsContainer.innerHTML = '<p>Por favor, seleccione un período.</p>';
-            previewsContainer.innerHTML = '';
+            expedienteList.innerHTML = '<p>Por favor, seleccione un período.</p>';
             return;
         }
 
-        // Mostramos "Cargando..."
-        detailsContainer.innerHTML = '<p>Cargando datos del expediente...</p>';
-        previewsContainer.innerHTML = '';
+        expedienteList.innerHTML = '<p>Cargando expedientes...</p>';
+        detailsContainer.innerHTML = '<p>No hay expediente seleccionado.</p>';
+        currentActiveExpedienteId = null; 
 
         try {
-            // Subimos 2 niveles de nuevo
-            const response = await fetch(`../../api_get_expediente_detalle.php?id_periodo=${idPeriodo}`);
+            const response = await fetch(`../../api_get_expedientes_por_periodo.php?id_periodo=${idPeriodo}`);
             const data = await response.json();
+            if (data.error) { throw new Error(data.error); }
 
-            if (data.error) {
-                // Si no se encontró un expediente, lo indicamos
-                detailsContainer.innerHTML = `<p>${data.error}</p>`;
-                previewsContainer.innerHTML = '';
-                return;
+            expedienteList.innerHTML = '';
+            if (data.length > 0) {
+                data.forEach(expediente => {
+                    const item = document.createElement('div');
+                    item.className = 'expediente-item';
+                    item.dataset.id = expediente.id_expediente;
+                    item.textContent = expediente.nombre_convocatoria;
+                    expedienteList.appendChild(item);
+                });
+                loadEstadisticas(data[0].id_expediente);
+                expedienteList.children[0].classList.add('active');
+            } else {
+                expedienteList.innerHTML = '<p>No hay expedientes para este período.</p>';
             }
+        } catch (error) {
+            console.error('Error al cargar expedientes:', error);
+            expedienteList.innerHTML = `<p>${error.message}</p>`;
+        }
+    }
 
-            // 5. Rellenamos el panel derecho (Detalles)
+    // --- FUNCIÓN 3: Cargar ESTADÍSTICAS ---
+    async function loadEstadisticas(idExpediente) {
+        currentActiveExpedienteId = idExpediente;
+        detailsContainer.innerHTML = '<p>Cargando estadísticas...</p>';
+        try {
+            const response = await fetch(`../../api_get_expediente_estadisticas.php?id_expediente=${idExpediente}`);
+            const data = await response.json();
+            if (data.error) { throw new Error(data.error); }
+
+            const descargarUrl = `../../api_download_expediente.php?id_expediente=${idExpediente}`;
+            const visualizarUrl = `visualizar.html?id=${idExpediente}`;
+
             detailsContainer.innerHTML = `
                 <h2>${data.nombre_expediente}</h2>
                 <p><strong>Convocatoria:</strong> ${data.convocatoria}</p>
                 <p><strong>Estatus:</strong> ${data.estatus}</p>
                 <p><strong>Documentos:</strong> ${data.documentos_count}</p>
                 <div class="links">
-                    <a href="#">Descargar</a>
-                    <a href="#">Visualizar</a>
+                    <a href="${descargarUrl}">Descargar</a>
+                    <a href="${visualizarUrl}">Visualizar</a>
                 </div>
             `;
-
-            // 6. Rellenamos el panel izquierdo (Vistas Previa)
-            if (data.documentos_list && data.documentos_list.length > 0) {
-                data.documentos_list.forEach(doc => {
-                    previewsContainer.innerHTML += `
-                        <div class="preview-item">
-                            <div class="preview-placeholder">
-                                Vista previa (${doc.tipo_archivo})
-                            </div>
-                            <p>${doc.nombre_documento_manual}</p>
-                        </div>
-                    `;
-                });
-            } else {
-                previewsContainer.innerHTML = '<p>Este expediente no tiene documentos aún.</p>';
-            }
-
         } catch (error) {
-            console.error('Error al cargar expediente:', error);
-            detailsContainer.innerHTML = '<p>Error al cargar el expediente.</p>';
+            console.error('Error al cargar estadísticas:', error);
+            detailsContainer.innerHTML = `<p>${error.message}</p>`;
         }
     }
 
-    // 7. Añadimos el "escuchador" al <select>
+    // --- FUNCIÓN 4: Abrir/Cerrar Modal de Borrado ---
+    function openDeleteModal() {
+        if (!currentActiveExpedienteId) {
+            alert('Por favor, seleccione un expediente para eliminar.');
+            return;
+        }
+        modalBackdropDelete.classList.remove('hidden');
+        modalDelete.classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+        modalBackdropDelete.classList.add('hidden');
+        modalDelete.classList.add('hidden');
+    }
+
+    // --- FUNCIÓN 5: Ejecutar el borrado (lo que hacía confirm() antes) ---
+    async function handleConfirmDelete() {
+        try {
+            const formData = new FormData();
+            formData.append('id_expediente', currentActiveExpedienteId);
+
+            const response = await fetch('../../api_delete_expediente.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('Expediente eliminado con éxito.');
+                closeDeleteModal(); // Cerramos el modal
+                loadExpedientes(periodoSelect.value); // Recargamos la lista
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error('Error al eliminar expediente:', error);
+            alert(`Error al eliminar: ${error.message}`);
+        }
+    }
+
+    // --- 6. Event Listeners ---
+    
     periodoSelect.addEventListener('change', () => {
-        loadExpediente(periodoSelect.value);
+        loadExpedientes(periodoSelect.value);
     });
 
-    // 8. Iniciamos todo cargando los períodos
+    expedienteList.addEventListener('click', (event) => {
+        const expedienteItem = event.target.closest('.expediente-item');
+        if (expedienteItem) {
+            document.querySelectorAll('.expediente-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            expedienteItem.classList.add('active');
+            loadEstadisticas(expedienteItem.dataset.id);
+        }
+    });
+    
+    btnCrear.addEventListener('click', () => {
+        const selectedPeriodoId = periodoSelect.value;
+        if (selectedPeriodoId) {
+            window.location.href = `crear_expediente.html?periodo=${selectedPeriodoId}`;
+        } else {
+            alert('Por favor, seleccione un período primero.');
+        }
+    });
+
+    // --- LÓGICA DE BORRADO ---
+    btnEliminar.addEventListener('click', openDeleteModal);
+    btnCancelDelete.addEventListener('click', closeDeleteModal);
+    modalBackdropDelete.addEventListener('click', closeDeleteModal);
+    btnConfirmDelete.addEventListener('click', handleConfirmDelete);
+
+    // --- 7. Iniciar todo ---
     loadPeriodos();
 });

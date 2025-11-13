@@ -1,0 +1,123 @@
+/* Contenedor principal de la página */
+.visual-container {
+    width: 90%;
+    max-width: 1400px;
+    margin: 2rem auto;
+    display: flex;
+    flex-direction: column;
+    height: 90vh;
+}
+
+/* Encabezado */
+.visual-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #E8DAEF;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+.visual-header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+}
+.visual-header span {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #555;
+}
+.visual-header h2 {
+    font-size: 1.3rem;
+    color: #6C3483;
+    margin: 0;
+    text-align: center;
+}
+.visual-header .header-left,
+.visual-header .header-right {
+    flex: 1;
+}
+.visual-header .header-right {
+    text-align: right;
+}
+
+/* Contenedor del carrusel */
+.carousel-wrapper {
+    flex: 1; /* Ocupa el espacio restante */
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+/* Contenedor que "corta" la vista */
+.carousel-container {
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Pista que se mueve (contiene los iframes) */
+.carousel-track {
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Cada diapositiva (PDF) */
+.carousel-slide {
+    flex: 0 0 100%; /* Cada slide ocupa el 100% del contenedor */
+    width: 100%;
+    height: 70vh; /* Altura del visualizador */
+    padding: 0 10px; /* Pequeño espacio entre slides */
+    box-sizing: border-box;
+}
+.carousel-slide iframe {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+/* Flechas de navegación */
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(108, 52, 131, 0.7); /* Púrpura */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.2s;
+}
+.carousel-arrow:hover {
+    background-color: rgba(108, 52, 131, 1);
+}
+#arrow-left {
+    left: -25px;
+}
+#arrow-right {
+    right: -25px;
+}
+/* Oculta flechas si están desactivadas */
+.carousel-arrow.hidden {
+    display: none;
+}
+
+/* Botón de regresar */
+.btn-back {
+    background-color: #f4ecf7;
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    max-width: 200px;
+    margin: 0 auto;
+}
+.btn-back:hover {
+    background-color: #E8DAEF;
+}

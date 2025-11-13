@@ -1,0 +1,53 @@
+/* Contenedor del formulario */
+.form-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 2rem auto; /* Centrar el formulario */
+    background-color: #F4ECF7;
+    padding: 2rem;
+    border-radius: 12px;
+}
+
+.form-container label {
+    display: block;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+.form-container select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+.form-container p {
+    font-size: 1.1rem;
+}
+
+/* Botones del formulario */
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #D5BEE3;
+}
+
+/* Reusamos la clase 'btn' pero la adaptamos de 'a' */
+.form-buttons a.btn {
+    text-decoration: none;
+    text-align: center;
+}
+
+/* Mensaje de error */
+.form-error {
+    color: #dc3545; /* Rojo */
+    font-size: 0.9rem;
+    margin-top: 10px;
+}

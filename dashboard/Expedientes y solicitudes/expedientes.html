@@ -11,6 +11,7 @@
 
     <div class="container">
         <header class="tabs">
+            <a href="../dashboard.html" class="tab">Mi perfil</a>
             <a href="expedientes.html" class="tab active">Expedientes</a>
             <a href="solicitudes.html" class="tab">Mis solicitudes</a>
         </header>
@@ -24,15 +25,10 @@
                         <select id="periodo-select">
                             <option value="">Cargando períodos...</option>
                         </select>
-                        <div class="select-arrows">
-                            <span>&#x25B2;</span>
-                            <span>&#x25BC;</span>
-                        </div>
                     </div>
                 </div>
-
-                <div class="previews-list" id="document-previews">
-                    <p>Seleccione un período para ver los documentos.</p>
+                <div class="expediente-list" id="expediente-list">
+                    <p>Seleccione un período para ver los expedientes.</p>
                 </div>
             </section>
 
@@ -42,12 +38,22 @@
                 </div>
                 
                 <div class="action-buttons">
-                    <button class="btn btn-primary">Crear nuevo expediente</button>
-                    <button class="btn btn-secondary">Eliminar expediente</button>
+                    <button class="btn btn-primary" id="btn-crear">Crear nuevo expediente</button>
+                    <button class="btn btn-secondary" id="btn-eliminar">Eliminar expediente</button>
                 </div>
             </section>
 
         </main>
+    </div>
+
+    <div id="modal-backdrop-delete" class="modal-backdrop hidden"></div>
+    <div id="modal-delete" class="modal hidden">
+        <h2>¿Está seguro?</h2>
+        <p>Esta acción es irreversible y borrará el expediente y todos sus documentos asociados.</p>
+        <div class="modal-buttons">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-delete">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="btn-confirm-delete">Eliminar</button>
+        </div>
     </div>
 
 </body>

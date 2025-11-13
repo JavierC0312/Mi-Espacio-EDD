@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualización de Expediente</title>
+    <link rel="stylesheet" href="expedientes.css">
+    <link rel="stylesheet" href="visualizar.css">
+    <script src="visualizar.js" defer></script>
+</head>
+<body>
+    
+    <div class="visual-container">
+        <header class="visual-header">
+            <div class="header-left">
+                <h1>Visualización del expediente</h1>
+                <span id="exp-periodo">Cargando...</span>
+            </div>
+            <div class="header-center">
+                <h2 id="doc-nombre">Cargando...</h2>
+            </div>
+            <div class="header-right">
+                <span>Documentos: <strong id="doc-count">0</strong></span>
+            </div>
+        </header>
+
+        <main class="carousel-wrapper">
+            <button id="arrow-left" class="carousel-arrow">&#9664;</button>
+            
+            <div class="carousel-container">
+                <div class="carousel-track" id="carousel-track">
+                    </div>
+            </div>
+            
+            <button id="arrow-right" class="carousel-arrow">&#9654;</button>
+        </main>
+        
+        <a href="expedientes.html" class="btn btn-back">Regresar a Expedientes</a>
+
+    </div>
+
+</body>
+</html>
