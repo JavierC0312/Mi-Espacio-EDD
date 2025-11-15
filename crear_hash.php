@@ -1,7 +1,7 @@
 <?php
 
 // Aquí pones la contraseña que quieres hashear
-$contrasena_plana = "123456";
+$contrasena_plana = "100001";
 
 $hash_generado = password_hash($contrasena_plana, PASSWORD_DEFAULT);
 

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bandeja de Solicitudes</title>
+    <link rel="stylesheet" href="../dashboard/Expedientes y solicitudes/expedientes.css">
+    <link rel="stylesheet" href="bandeja.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="bandeja.js" defer></script>
+</head>
+<body>
+
+    <div class="container">
+        <header class="page-title">
+            <h2>Bandeja de Solicitudes</h2>
+        </header>
+
+        <div class="filter-bar">
+            <input type="text" id="search-box" class="search-box" placeholder="Buscar por Docente...">
+            <button class="btn-filter" id="btn-filtros">
+                Filtros <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="filter-dropdown" class="filter-dropdown hidden">
+                <a href="#" data-sort="fecha" data-order="ASC">Fecha (Asc)</a>
+                <a href="#" data-sort="fecha" data-order="DESC">Fecha (Desc)</a>
+                <a href="#" data-sort="nombre_docente" data-order="ASC">Docente (A-Z)</a>
+                <a href="#" data-sort="nombre_docente" data-order="DESC">Docente (Z-A)</a>
+            </div>
+        </div>
+
+        <main class="content-wrapper">
+            <section class="table-container">
+                <h3>Solicitudes pendientes</h3>
+                <table id="tabla-solicitudes">
+                    <thead>
+                        <tr>
+                            <th>FOLIO</th>
+                            <th>DOCENTE</th>
+                            <th>DOCUMENTO</th>
+                            <th>FECHA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body">
+                        </tbody>
+                </table>
+            </section>
+
+            <section class="details-panel">
+                <div class="details-box" id="details-box">
+                    <p>No hay solicitud seleccionada.</p>
+                </div>
+                <a href="#" id="btn-revisar" class="btn btn-primary disabled">Revisar</a>
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>
