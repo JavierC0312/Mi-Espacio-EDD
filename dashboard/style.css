@@ -134,3 +134,104 @@ body {
     font-weight: bold;
     margin-top: 10px;
 }
+
+.btn-logout {
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+.btn-logout:hover {
+    background-color: #c82333;
+}
+/* Estilos para el canvas de firma */
+.signature-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    background-color: #ffffff;
+    overflow: hidden; /* Evita scroll si te sales */
+}
+
+/* Ajuste responsivo para móviles */
+@media (max-width: 600px) {
+    #signature-pad {
+        width: 100%;
+        height: 150px;
+    }
+}
+/* =========================================
+   ESTILOS PARA MODALES (FIRMA Y EDICIÓN)
+   ========================================= */
+
+/* Fondo oscuro detrás del modal */
+.modal-backdrop {
+    position: fixed; /* Se queda fijo al hacer scroll */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Ancho total de la ventana */
+    height: 100vh; /* Alto total de la ventana */
+    background-color: rgba(0, 0, 0, 0.5); /* Negro semitransparente */
+    z-index: 999; /* Muy alto para estar encima de todo */
+    display: flex; /* Ayuda a centrar si fuera necesario, pero usaremos fixed en el modal */
+    justify-content: center;
+    align-items: center;
+}
+
+/* La caja blanca del modal */
+.modal {
+    position: fixed; /* Fijo en la pantalla */
+    top: 50%; /* Centrado vertical */
+    left: 50%; /* Centrado horizontal */
+    transform: translate(-50%, -50%); /* Ajuste fino para centrado exacto */
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Sombra suave */
+    z-index: 1000; /* Encima del fondo oscuro */
+    width: 90%; /* Ancho responsivo */
+    max-width: 600px; /* Ancho máximo */
+    text-align: center; /* Centrar texto y canvas */
+    border: 1px solid #e0e0e0;
+}
+
+/* Para ocultar elementos */
+.hidden {
+    display: none !important; /* !important asegura que se oculte */
+}
+
+/* Título del modal */
+.modal h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+/* Botones dentro del modal */
+.modal-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end; /* Botones a la derecha */
+    gap: 10px;
+}
+
+/* Asegurar que el canvas no se salga */
+.signature-wrapper {
+    display: flex;
+    justify-content: center;
+    background-color: #fff;
+    border: 2px dashed #6C3483;
+    border-radius: 8px;
+    margin: 15px auto; /* Centrado horizontal con margen */
+    padding: 5px;
+}
+
+#signature-pad {
+    width: 100%;
+    max-width: 500px;
+    background-color: #fff;
+    touch-action: none;
+}

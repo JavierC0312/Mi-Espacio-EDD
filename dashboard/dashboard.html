@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Mi Perfil</title>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
@@ -12,7 +11,10 @@
 <body>
 
     <main class="profile-container">
-        <h1>Mi perfil</h1>
+        <div style="display:flex; justify-content: space-between; align-items: center;">
+            <h1>Mi perfil</h1>
+            <a href="../logout.php" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+        </div>
         
         <div class="icon-wrapper">
             <i class="fas fa-user-circle"></i>
@@ -21,18 +23,14 @@
         <div id="view-mode">
             <div class="profile-data">
                 <p>Nombre: <span id="profile-nombre">Cargando...</span></p>
+                <p>Tipo de Usuario: <span id="profile-rol" style="color: #6C3483; font-weight: bold;">...</span></p>
                 <p>Correo electrónico: <span id="profile-correo">Cargando...</span></p>
-                <p>Fecha de ingreso: <span id="profile-fecha">Cargando...</span></p>
+                <p>Fecha de ingreso: <span id="profile-fecha">Cargando...</span></p> <p>Departamento: <span id="profile-depto">Cargando...</span></p>
                 <p>Matrícula: <span id="profile-matricula">Cargando...</span></p>
-                <p>CURP: <span id="profile-curp">Cargando...</span></p>
-                <p>Departamento: <span id="profile-depto">Cargando...</span></p>
+                <p class="hidden-details">CURP: <span id="profile-curp">Cargando...</span></p>
             </div>
 
-            <div class="profile-buttons" id="view-buttons">
-                <button class="btn" id="btn-edit">Modificar Perfil</button>
-                <button class="btn">Firma</button>
-                <a href="Expedientes y solicitudes/expedientes.html" class="btn">Expedientes y solicitudes</a>
-            </div>
+            <div class="profile-buttons" id="dynamic-buttons"></div>
         </div>
 
         <form id="edit-mode" class="hidden">
@@ -56,13 +54,55 @@
                 <p><strong>Departamento:</strong> <span id="static-depto"></span></p>
             </div>
             
-            <p id="error-message" class="error"></p> <div class="profile-buttons" id="edit-buttons">
+            <p id="error-message" class="error"></p>
+
+            <div class="profile-buttons" id="edit-buttons">
                 <button type="submit" class="btn btn-save" id="btn-save">Guardar Cambios</button>
                 <button type="button" class="btn btn-cancel" id="btn-cancel">Cancelar</button>
             </div>
         </form>
 
     </main>
-    
+    <div id="modal-backdrop-firma" class="modal-backdrop hidden"></div>
+    <div id="modal-firma" class="modal hidden" style="max-width: 600px;">
+        <h2>Mi Firma Digital</h2>
+        
+        <div id="vista-firma-existente" class="hidden">
+            <p>Esta es su firma registrada actual:</p>
+            
+            <div style="background: #f4f4f4; padding: 20px; margin: 20px auto; border-radius: 8px; display: inline-block;">
+                <img id="img-firma-actual" src="" alt="Firma QR" style="max-width: 150px; height: auto; display: block;">
+            </div>
+
+            <div class="modal-buttons" style="justify-content: center;">
+                <a id="btn-descargar-imagen" href="#" download="mi_firma_qr.png" class="btn" style="text-decoration: none; display: flex; align-items: center; background-color: #28a745;">
+                    <i class="fas fa-download" style="margin-right: 8px;"></i> Descargar Imagen
+                </a>
+            </div>
+            
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+            
+            <p style="font-size: 0.9rem; color: #666;">¿Desea actualizar su firma?</p>
+            <button id="btn-cambiar-firma" class="btn btn-secondary" style="font-size: 0.9rem;">Dibujar nueva firma</button>
+            <button type="button" class="btn btn-secondary" onclick="cerrarModalFirma()">Cerrar</button>
+        </div>
+
+        <div id="vista-nueva-firma" class="hidden">
+            <p>Dibuje su firma en el recuadro. Esta se convertirá en un código QR.</p>
+            
+            <div class="signature-wrapper" style="border: 2px dashed #6C3483; border-radius: 8px; background: #fff;">
+                <canvas id="signature-pad" width="500" height="200" style="touch-action: none; cursor: crosshair;"></canvas>
+            </div>
+            
+            <div style="text-align: right; margin-top: 5px; font-size: 0.8rem; color: #666;">
+                <button type="button" id="btn-limpiar-firma" style="background: none; border: none; color: #dc3545; cursor: pointer; text-decoration: underline;">Limpiar y corregir</button>
+            </div>
+
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" id="btn-cancelar-dibujo">Cancelar</button>
+                <button type="button" class="btn" id="btn-guardar-firma" style="background-color: #6C3483; color: white;">Guardar y Generar QR</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

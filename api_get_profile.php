@@ -1,31 +1,20 @@
 <?php
 session_start();
-include 'conexion_db.php'; 
+include 'conexion_db.php';
 
-// Preparamos una respuesta por defecto
 $response = ['error' => 'No se ha iniciado sesión.'];
 
-// Verificamos si el usuario ha iniciado sesión y tenemos su ID (matrícula)
-if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true && isset($_SESSION["usuario_id"])) {
-    
+if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
     $matricula = $_SESSION["usuario_id"];
 
-    // Preparamos la consulta SQL para obtener todos los datos del perfil
+    // MODIFICACIÓN: Agregamos 'p.ruta_firma_qr' a la consulta
     $sql = "SELECT 
-                p.matricula, 
-                p.curp, 
-                p.nombre, 
-                p.ap_paterno, 
-                p.ap_materno,
-                p.correo, 
-                p.fecha_ingreso,
+                p.matricula, p.curp, p.nombre, p.ap_paterno, p.ap_materno, 
+                p.correo, p.fecha_ingreso, p.tipo_personal, p.ruta_firma_qr,
                 d.nombre_departamento 
-            FROM 
-                personal p
-            LEFT JOIN 
-                departamentos d ON p.id_departamento = d.id_departamento
-            WHERE 
-                p.matricula = ?";
+            FROM personal p
+            LEFT JOIN departamentos d ON p.id_departamento = d.id_departamento
+            WHERE p.matricula = ?";
 
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $matricula);
@@ -33,18 +22,14 @@ if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true && isset($_SE
     $result = $stmt->get_result();
 
     if ($result->num_rows === 1) {
-        // Si se encontró al usuario, enviamos sus datos
         $response = $result->fetch_assoc();
     } else {
-        $response['error'] = 'No se pudo encontrar el perfil del usuario.';
+        $response['error'] = 'Usuario no encontrado.';
     }
-    
     $stmt->close();
     $conn->close();
-
 } 
 
-// Devolvemos la respuesta (datos del usuario o error) en formato JSON
 header('Content-Type: application/json');
 echo json_encode($response);
 exit();

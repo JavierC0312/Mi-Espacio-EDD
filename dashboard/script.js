@@ -1,102 +1,298 @@
-// Variable global para guardar los datos del perfil
 let userProfileData = {};
 
-// Se ejecuta cuando el HTML se ha cargado
-document.addEventListener("DOMContentLoaded", function() {
-    
-    // 1. Obtener datos del perfil al cargar la página
-    fetchProfileData();
+// Variables globales para la firma (para acceder desde distintas funciones)
+let canvas, ctx, isDrawing = false;
 
-    // 2. Configurar los escuchadores de botones
-    document.getElementById('btn-edit').addEventListener('click', toggleEditMode);
-    document.getElementById('btn-cancel').addEventListener('click', toggleViewMode);
-    document.getElementById('edit-mode').addEventListener('submit', saveProfileChanges);
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Cargar datos del perfil
+    fetchProfileData();
+    
+    // 2. Listener para cancelar edición de perfil
+    const btnCancel = document.getElementById('btn-cancel');
+    if(btnCancel) btnCancel.addEventListener('click', toggleViewMode);
+
+    // ======================================================
+    // 3. INICIALIZACIÓN DE LÓGICA DE FIRMA
+    // ======================================================
+    
+    // Referencias al DOM del Modal de Firma
+    canvas = document.getElementById('signature-pad');
+    const btnLimpiarFirma = document.getElementById('btn-limpiar-firma');
+    const btnCancelarFirma = document.getElementById('btn-cancelar-firma'); // Cancelar del dibujo
+    const btnGuardarFirma = document.getElementById('btn-guardar-firma');
+    
+    // Referencias a los botones de la vista "Firma Existente"
+    const btnCambiarFirma = document.getElementById('btn-cambiar-firma');
+    const btnCancelarDibujo = document.getElementById('btn-cancelar-dibujo');
+
+    // Inicializar Canvas
+    if (canvas) {
+        ctx = canvas.getContext('2d');
+        // Eventos de Ratón
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', draw);
+        // Eventos Táctiles
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startPosition(e); });
+        canvas.addEventListener('touchend', (e) => { e.preventDefault(); endPosition(); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+    }
+
+    // Listeners de botones
+    if (btnLimpiarFirma) btnLimpiarFirma.addEventListener('click', limpiarCanvas);
+    
+    // Botón "Cerrar" en la vista de firma existente
+    // (Reutilizamos la función cerrarModalFirma si existe el botón en el HTML)
+    const btnCerrarModal = document.querySelector('#vista-firma-existente button[onclick="cerrarModalFirma()"]');
+    if (btnCerrarModal) {
+        btnCerrarModal.onclick = cerrarModalFirma; // Aseguramos que funcione sin onclick en HTML
+    }
+
+    // Botón "Cancelar" en la vista de dibujo
+    if (btnCancelarFirma) btnCancelarFirma.addEventListener('click', cerrarModalFirma); // Caso viejo
+    if (btnCancelarDibujo) {
+        btnCancelarDibujo.addEventListener('click', () => {
+            // Si ya tiene firma, regresa a la vista previa, si no, cierra
+            if (userProfileData.ruta_firma_qr) {
+                mostrarVistaExistente();
+            } else {
+                cerrarModalFirma();
+            }
+        });
+    }
+
+    // Botón "Dibujar nueva firma"
+    if (btnCambiarFirma) {
+        btnCambiarFirma.addEventListener('click', mostrarVistaDibujo);
+    }
+
+    // Botón Guardar
+    if (btnGuardarFirma) btnGuardarFirma.addEventListener('click', guardarFirmaYGenerarQR);
 });
 
-// --- OBTENER DATOS ---
+// --- FUNCIONES DE PERFIL ---
+
 async function fetchProfileData() {
     try {
         const response = await fetch('../api_get_profile.php');
-        if (!response.ok) throw new Error('Error en la respuesta del servidor.');
-
         const data = await response.json();
 
         if (data.error) {
-            window.location.href = '../login/login.html'; // Redirigir si hay error
+            window.location.href = '../login/login.html';
         } else {
-            userProfileData = data; // Guardamos los datos globalmente
-            populateProfile(data);  // Llenamos los campos de VISTA
+            userProfileData = data;
+            populateProfile(data);
+            renderButtons(data.tipo_personal);
         }
     } catch (error) {
-        console.error('Error al obtener los datos del perfil:', error);
+        console.error('Error:', error);
     }
 }
 
-// -- RELLENAR DATOS DE VISTA ---
 function populateProfile(data) {
-    const nombreCompleto = `${data.nombre || ''} ${data.ap_paterno || ''} ${data.ap_materno || ''}`;
-    document.getElementById('profile-nombre').textContent = nombreCompleto.trim();
-    document.getElementById('profile-correo').textContent = data.correo || 'No disponible';
-    document.getElementById('profile-fecha').textContent = data.fecha_ingreso || 'No disponible';
-    document.getElementById('profile-matricula').textContent = data.matricula || 'No disponible';
-    document.getElementById('profile-curp').textContent = data.curp || 'No disponible';
-    document.getElementById('profile-depto').textContent = data.nombre_departamento || 'No asignado';
+    const nombreCompleto = `${data.nombre} ${data.ap_paterno} ${data.ap_materno || ''}`;
+    document.getElementById('profile-nombre').textContent = nombreCompleto;
+    document.getElementById('profile-rol').textContent = data.tipo_personal;
+    document.getElementById('profile-correo').textContent = data.correo;
+    document.getElementById('profile-depto').textContent = data.nombre_departamento;
+    document.getElementById('profile-matricula').textContent = data.matricula;
+    
+    if(document.getElementById('profile-fecha')) {
+        document.getElementById('profile-fecha').textContent = data.fecha_ingreso;
+    }
+
+    if(document.getElementById('profile-curp')) 
+        document.getElementById('profile-curp').textContent = data.curp;
 }
 
-// --- CAMBIAR A MODO EDICIÓN ---
+function renderButtons(rol) {
+    const container = document.getElementById('dynamic-buttons');
+    container.innerHTML = ''; 
+
+    // Botón: Modificar Perfil
+    const btnEdit = document.createElement('button');
+    btnEdit.className = 'btn';
+    btnEdit.textContent = 'Modificar Perfil';
+    btnEdit.onclick = toggleEditMode;
+    container.appendChild(btnEdit);
+
+    // Botón: Mi Firma
+    const btnFirma = document.createElement('button');
+    btnFirma.className = 'btn';
+    btnFirma.textContent = 'Mi Firma';
+    btnFirma.id = 'btn-abrir-firma'; 
+    btnFirma.onclick = abrirModalFirma; 
+    container.appendChild(btnFirma);
+
+    // Lógica por Rol
+    if (rol === 'DOCENTE') {
+        const btnExp = document.createElement('a');
+        btnExp.href = 'Expedientes y solicitudes/expedientes.html';
+        btnExp.className = 'btn';
+        btnExp.textContent = 'Mis Expedientes';
+        container.appendChild(btnExp);
+    } 
+    else if (rol === 'DIRECTOR' || rol === 'JEFE_AREA' || rol === 'SUBDIRECTOR') {
+        const btnBandeja = document.createElement('a');
+        btnBandeja.href = 'Bandeja de solicitudes/bandeja.html'; 
+        btnBandeja.className = 'btn';
+        btnBandeja.textContent = 'Bandeja de Solicitudes';
+        container.appendChild(btnBandeja);
+    }
+}
+
 function toggleEditMode() {
-    // Rellenar el formulario de edición con los datos actuales
-    document.getElementById('edit-nombre').value = userProfileData.nombre || '';
-    document.getElementById('edit-ap-paterno').value = userProfileData.ap_paterno || '';
-    document.getElementById('edit-ap-materno').value = userProfileData.ap_materno || '';
-    document.getElementById('edit-correo').value = userProfileData.correo || '';
-    document.getElementById('edit-curp').value = userProfileData.curp || '';
-    
-    // Rellenar campos estáticos (no editables)
-    document.getElementById('static-matricula').textContent = userProfileData.matricula || 'No disponible';
-    document.getElementById('static-depto').textContent = userProfileData.nombre_departamento || 'No asignado';
-    
-    // Ocultar vista y mostrar formulario
     document.getElementById('view-mode').classList.add('hidden');
     document.getElementById('edit-mode').classList.remove('hidden');
-    document.getElementById('error-message').textContent = ''; // Limpiar errores
 }
 
-// --- CAMBIAR A MODO VISTA  ---
 function toggleViewMode() {
-    // Ocultar formulario y mostrar vista
     document.getElementById('edit-mode').classList.add('hidden');
     document.getElementById('view-mode').classList.remove('hidden');
 }
 
-// --- GUARDAR CAMBIOS ---
-async function saveProfileChanges(event) {
-    event.preventDefault(); // Evitar que el formulario se envíe de forma normal
+// --- FUNCIONES DE FIRMA (CANVAS Y VISTAS) ---
+
+function abrirModalFirma() {
+    document.getElementById('modal-firma').classList.remove('hidden');
+    document.getElementById('modal-backdrop-firma').classList.remove('hidden');
     
-    const form = event.target;
-    const formData = new FormData(form);
-    const errorMessage = document.getElementById('error-message');
+    // Decidir qué vista mostrar según si ya tiene firma
+    if (userProfileData.ruta_firma_qr) {
+        mostrarVistaExistente();
+    } else {
+        mostrarVistaDibujo();
+    }
+}
+
+function mostrarVistaExistente() {
+    document.getElementById('vista-firma-existente').classList.remove('hidden');
+    document.getElementById('vista-nueva-firma').classList.add('hidden');
+    
+    // Cargar la imagen y configurar descarga
+    // Nota: La ruta viene como 'archivos/qr_firmas/...', subimos un nivel
+    const rutaImg = "../" + userProfileData.ruta_firma_qr;
+    const imgElement = document.getElementById('img-firma-actual');
+    const btnDescargar = document.getElementById('btn-descargar-imagen');
+    
+    // Agregamos un timestamp para evitar caché si acabamos de actualizar
+    const timestamp = new Date().getTime();
+    imgElement.src = rutaImg + "?t=" + timestamp;
+    btnDescargar.href = rutaImg;
+}
+
+function mostrarVistaDibujo() {
+    document.getElementById('vista-firma-existente').classList.add('hidden');
+    document.getElementById('vista-nueva-firma').classList.remove('hidden');
+    resizeCanvas();
+    limpiarCanvas();
+}
+
+function cerrarModalFirma() {
+    document.getElementById('modal-firma').classList.add('hidden');
+    document.getElementById('modal-backdrop-firma').classList.add('hidden');
+    limpiarCanvas();
+}
+
+function startPosition(e) {
+    isDrawing = true;
+    draw(e);
+}
+
+function endPosition() {
+    isDrawing = false;
+    ctx.beginPath(); 
+}
+
+function draw(e) {
+    if (!isDrawing) return;
+
+    const rect = canvas.getBoundingClientRect();
+    let x, y;
+
+    if (e.type.includes('touch')) {
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+    } else {
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+    }
+
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#000';
+
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+}
+
+function limpiarCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function resizeCanvas() {
+    // Ajuste simple si fuera necesario
+}
+
+async function guardarFirmaYGenerarQR() {
+    const dataURL = canvas.toDataURL('image/png');
+
+    if (dataURL.length < 1000) {
+        alert("Por favor dibuje su firma antes de guardar.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('firma_base64', dataURL);
 
     try {
-        const response = await fetch('../api_update_profile.php', {
+        const response = await fetch('../api_guardar_firma.php', {
             method: 'POST',
             body: formData
         });
-
         const result = await response.json();
 
         if (result.success) {
-            // Si se guardó con éxito:
-            // 1. Volvemos a pedir los datos frescos del servidor
-            await fetchProfileData();
-            // 2. Cambiamos de vuelta al modo de vista
-            toggleViewMode();
+            alert('Firma guardada y QR generado exitosamente.');
+            
+            // ACTUALIZAR DATOS EN MEMORIA
+            userProfileData.ruta_firma_qr = result.qr_url;
+            
+            // Volver a la vista de "Firma Existente"
+            mostrarVistaExistente();
         } else {
-            // Si el PHP devolvió un error
-            errorMessage.textContent = result.message || 'Error al guardar.';
+            alert('Error: ' + result.message);
         }
     } catch (error) {
-        console.error('Error al guardar los cambios:', error);
-        errorMessage.textContent = 'Error de conexión. Inténtalo de nuevo.';
+        console.error(error);
+        alert('Error de conexión al guardar la firma.');
     }
+}
+
+// --- LÓGICA DE FORMULARIO DE EDICIÓN ---
+const editForm = document.getElementById('edit-mode');
+if (editForm) {
+    editForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const formData = new FormData(editForm);
+
+        try {
+            const response = await fetch('../api_update_profile.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                await fetchProfileData();
+                toggleViewMode();
+            } else {
+                alert(result.message || 'Error al guardar.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    });
 }

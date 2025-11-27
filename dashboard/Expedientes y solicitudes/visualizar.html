@@ -23,7 +23,11 @@
                 <span>Documentos: <strong id="doc-count">0</strong></span>
             </div>
         </header>
-
+        <div style="text-align: center; margin-bottom: 10px;">
+            <button id="btn-reportar" class="btn-danger hidden" style="padding: 8px 20px; border-radius: 20px; cursor: pointer; border:none; font-weight:bold;">
+                ⚠️ Solicitar Revisión / Reportar Error
+            </button>
+        </div>
         <main class="carousel-wrapper">
             <button id="arrow-left" class="carousel-arrow">&#9664;</button>
             
@@ -38,6 +42,16 @@
         <a href="expedientes.html" class="btn btn-back">Regresar a Expedientes</a>
 
     </div>
-
+    <div id="modal-reporte" class="modal hidden"> <h2 style="color: #dc3545;">Reportar Error en Documento</h2>
+        <p>Describa el error encontrado para que el administrador lo corrija.</p>
+        <form id="form-reporte">
+            <textarea id="txt-mensaje-reporte" rows="4" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;" placeholder="Ej: Mi nombre está mal escrito, debería ser..."></textarea>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-back" id="btn-cancelar-reporte">Cancelar</button>
+                <button type="submit" class="btn-danger" style="padding: 10px 20px; border:none; border-radius:15px; cursor:pointer; font-weight:bold;">Enviar Reporte</button>
+            </div>
+        </form>
+    </div>
+    <div id="modal-backdrop-reporte" class="modal-backdrop hidden"></div>
 </body>
 </html>

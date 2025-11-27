@@ -1,0 +1,155 @@
+body {
+    background-color: #F5F5F5; /* Fondo gris claro */
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.container-revisar {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.header-revisar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Visor tipo "Hoja de papel" */
+.document-viewer {
+    background-color: #e0e0e0;
+    padding: 40px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.paper-sheet {
+    width: 800px;
+    height: 600px; /* Altura fija para el preview */
+    background-color: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    border: 1px solid #ccc;
+}
+
+.paper-sheet iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Acciones */
+.actions-container p {
+    color: #555;
+    margin-bottom: 15px;
+}
+.actions-container a {
+    color: #333;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.btn-firmar {
+    background-color: #E0C3FC; /* Lila */
+    color: #000;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.btn-firmar:hover {
+    background-color: #D2A8F9;
+    transform: scale(1.02);
+}
+
+/* MODAL ESPECÍFICO DE EDICIÓN */
+.modal-backdrop {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 100;
+}
+.hidden { display: none; }
+
+.modal-editar {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #F3E5F5; /* Fondo lila muy claro del modal */
+    padding: 0; /* Sin padding externo */
+    border-radius: 20px;
+    border: 2px solid #333;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 101;
+    width: 500px;
+    overflow: hidden;
+}
+
+.modal-body {
+    padding: 30px;
+    text-align: center;
+}
+.modal-body p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    font-weight: 500;
+}
+
+.modal-buttons-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Espacio entre botones */
+}
+
+.btn-modal {
+    flex: 1;
+    padding: 15px 0;
+    border: 2px solid #333;
+    border-radius: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.btn-purple {
+    background-color: #E0C3FC;
+    color: black;
+}
+.btn-red {
+    background-color: #FF3B30;
+    color: black;
+}
+/* Contenedor para poner los botones uno al lado del otro */
+.buttons-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Espacio entre los botones */
+    margin-top: 10px;
+}
+
+/* Estilo del botón Cancelar (Gris/Neutro) */
+.btn-cancelar {
+    background-color: #e0e0e0; /* Gris claro */
+    color: #333;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 15px 40px;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    text-decoration: none; /* Quitar subrayado de enlace */
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    display: inline-block;
+}
+
+.btn-cancelar:hover {
+    background-color: #d0d0d0; /* Gris un poco más oscuro */
+    transform: scale(1.02);
+}

@@ -2,7 +2,9 @@
 session_start();
 include 'conexion_db.php';
 
-// 1. Verificar sesión y que nos hayan pasado un ID
+// Limpiar cualquier salida previa (espacios, warnings)
+if (ob_get_length()) ob_clean();
+
 if (!isset($_SESSION["loggedin"]) || !isset($_GET['id_expediente'])) {
     die('Acceso denegado o faltan datos.');
 }
@@ -11,7 +13,7 @@ $id_expediente = $_GET['id_expediente'];
 $matricula = $_SESSION['usuario_id'];
 
 try {
-    // 2. (Seguridad) Verificar que el expediente pertenece al usuario
+    // 1. Verificar propiedad
     $sql_check = "SELECT c.nombre AS nombre_convocatoria FROM Expediente e 
                   JOIN Convocatoria c ON e.id_convocatoria = c.id_convocatoria 
                   WHERE e.id_expediente = ? AND e.matricula_docente = ?";
@@ -21,79 +23,85 @@ try {
     $result_check = $stmt_check->get_result();
 
     if ($result_check->num_rows !== 1) {
-        die('Error: Expediente no encontrado o no le pertenece.');
+        die('Error: Expediente no encontrado.');
     }
     
-    // Usamos el nombre de la convocatoria para el .zip
     $exp_data = $result_check->fetch_assoc();
-    $zip_filename_base = preg_replace('/[^a-z0-9_]/i', '_', $exp_data['nombre_convocatoria']);
-    $zip_filename = 'Expediente_' . $zip_filename_base . '.zip';
+    $zip_filename = 'Expediente_' . preg_replace('/[^a-z0-9_]/i', '_', $exp_data['nombre_convocatoria']) . '.zip';
     
-    // 3. Obtener la lista de TODOS los documentos de ese expediente
-    $sql_docs = "SELECT 
-                    ed.nombre_documento_manual, 
-                    ed.ruta_archivo,
-                    d.nombre_documento AS nombre_documento_sistema,
-                    d.ruta_pdf
-                FROM ExpedienteDocumentos ed
-                LEFT JOIN Documentos d ON ed.folio_documento = d.folio
-                WHERE ed.id_expediente = ?";
+    // 2. Obtener documentos
+    $sql_docs = "SELECT nombre_documento_manual, ruta_archivo, folio_documento, d.ruta_pdf 
+                 FROM ExpedienteDocumentos ed
+                 LEFT JOIN Documentos d ON ed.folio_documento = d.folio
+                 WHERE ed.id_expediente = ?";
     
     $stmt_docs = $conn->prepare($sql_docs);
     $stmt_docs->bind_param("i", $id_expediente);
     $stmt_docs->execute();
     $result_docs = $stmt_docs->get_result();
 
-    if ($result_docs->num_rows === 0) {
-        die('Este expediente no tiene documentos para descargar.');
-    }
+    if ($result_docs->num_rows === 0) die('Expediente vacío.');
 
-    // 4. Crear el archivo ZIP en una ubicación temporal
+    // 3. Crear ZIP
     $zip = new ZipArchive();
-    $temp_file = tempnam(sys_get_temp_dir(), 'zip'); // Crea un archivo temporal
+    $temp_file = tempnam(sys_get_temp_dir(), 'zip');
 
     if ($zip->open($temp_file, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
-        die('No se pudo crear el archivo zip.');
+        die('Error al crear ZIP.');
     }
 
-    // 5. Añadir los archivos al ZIP
-    // __DIR__ es la ruta de la carpeta raíz (donde está este script)
     $base_path = __DIR__ . '/'; 
 
     while ($row = $result_docs->fetch_assoc()) {
-        $file_name = $row['nombre_documento_manual'] ?? $row['nombre_documento_sistema'] ?? 'documento.pdf';
-        $file_path_relative = $row['ruta_archivo'] ?? $row['ruta_pdf'];
-        
-        // Ruta completa en el servidor
-        $file_path_absolute = $base_path . $file_path_relative;
+        // Determinar ruta y nombre
+        if ($row['ruta_archivo']) {
+            // Archivo subido manualmente
+            $path = $row['ruta_archivo'];
+            $name = $row['nombre_documento_manual'];
+        } elseif ($row['ruta_pdf']) {
+            // Archivo generado por sistema (PDF Firmado)
+            $path = $row['ruta_pdf'];
+            $name = $row['folio_documento'];
+        } else {
+            continue; // No hay archivo físico
+        }
 
-        if ($file_path_relative && file_exists($file_path_absolute)) {
-            // Añadimos una extensión .pdf si el nombre no la tiene
-            if (pathinfo($file_name, PATHINFO_EXTENSION) == '') {
-                $file_name .= '.pdf'; 
-            }
-            // Añadimos el archivo al zip
-            $zip->addFile($file_path_absolute, $file_name);
+        $full_path = $base_path . $path;
+
+        if (file_exists($full_path)) {
+            $ext = pathinfo($full_path, PATHINFO_EXTENSION);
+            if(!$ext) $ext = 'pdf'; // Default
+            
+            // Limpiar nombre de archivo
+            $clean_name = preg_replace('/[^a-z0-9_\-]/i', '_', $name) . '.' . $ext;
+            
+            $zip->addFile($full_path, $clean_name);
         }
     }
     $zip->close();
 
-    // 6. Enviar los encabezados HTTP para forzar la descarga
-    header('Content-Type: application/zip');
-    header('Content-Disposition: attachment; filename="' . $zip_filename . '"');
-    header('Content-Length: ' . filesize($temp_file));
-    header('Pragma: no-cache');
-    header('Expires: 0');
-    
-    // 7. Enviar el contenido del archivo zip al navegador
-    readfile($temp_file);
-
-    // 8. Borrar el archivo temporal del servidor
-    unlink($temp_file);
+    // 4. Descarga limpia
+    if (file_exists($temp_file)) {
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . $zip_filename . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($temp_file));
+        
+        // Limpiar buffer de nuevo por seguridad
+        if (ob_get_length()) ob_clean();
+        flush();
+        
+        readfile($temp_file);
+        unlink($temp_file);
+        exit;
+    } else {
+        die("Error: No se pudo generar el archivo temporal.");
+    }
 
 } catch (Exception $e) {
     die('Error del servidor: ' . $e->getMessage());
 }
-$conn->close();
-exit(); // Detenemos el script
 ?>

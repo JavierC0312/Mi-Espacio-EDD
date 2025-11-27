@@ -1,0 +1,71 @@
+/* Estilos específicos para Mis Solicitudes */
+
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.btn-new {
+    background-color: #28a745; /* Verde */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Tabla personalizada */
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+.custom-table th {
+    background-color: #f0f0f0;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+}
+.custom-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+.custom-table tr:hover {
+    background-color: #f5f5f5;
+}
+.custom-table tr.active {
+    background-color: #E8DAEF; /* Morado claro selección */
+}
+
+/* Badges de estado */
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+}
+.bg-pendiente { background-color: #ffc107; color: #333; }
+.bg-completado { background-color: #28a745; }
+.bg-rechazado { background-color: #dc3545; }
+.bg-revision { background-color: #17a2b8; }
+
+/* Mensaje del admin */
+.admin-msg {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.hidden { display: none; }

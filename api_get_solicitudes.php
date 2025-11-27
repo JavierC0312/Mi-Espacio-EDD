@@ -2,78 +2,102 @@
 session_start();
 include 'conexion_db.php';
 
-// Verificamos si el usuario ha iniciado sesión
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
-    echo json_encode(['error' => 'Acceso denegado']);
-    exit;
+    die(json_encode(['error' => 'Acceso denegado']));
 }
 
-// 1. Obtener la matrícula y el rol del ADMINISTRADOR que está logueado
 $admin_matricula = $_SESSION['usuario_id'];
-$stmt_admin = $conn->prepare("SELECT tipo_personal FROM Personal WHERE matricula = ?");
-$stmt_admin->bind_param("s", $admin_matricula);
-$stmt_admin->execute();
-$admin_result = $stmt_admin->get_result();
-$admin_rol = $admin_result->fetch_assoc()['tipo_personal'] ?? '';
 
-if (empty($admin_rol)) {
-     echo json_encode(['error' => 'Rol de administrador no válido.']);
-     exit;
-}
+// 1. OBTENER ROL Y DEPARTAMENTO DEL USUARIO ACTUAL
+$stmt_u = $conn->prepare("SELECT tipo_personal, id_departamento FROM Personal WHERE matricula = ?");
+$stmt_u->bind_param("s", $admin_matricula);
+$stmt_u->execute();
+$user_data = $stmt_u->get_result()->fetch_assoc();
+$rol_user = $user_data['tipo_personal'] ?? '';
+$depto_user = $user_data['id_departamento'] ?? 0;
 
-// 2. Preparamos la consulta base
+if (empty($rol_user)) { die(json_encode(['error' => 'Usuario no válido.'])); }
+
+// 2. PARAMETROS DE FILTRO
+$estado_filtro = $_GET['estado'] ?? 'Pendiente'; // 'Pendiente', 'Reportado', etc.
+// Si pedimos "Pendiente", también queremos ver los "En Proceso" o "Corregido" que me falten a mí
+$estados_busqueda = ($estado_filtro === 'Pendiente') ? "'Pendiente', 'En Proceso', 'Corregido'" : "'$estado_filtro'";
+
+// 3. CONSTRUIR CONSULTA "INTELIGENTE"
+// Buscamos documentos donde:
+// A. El estado sea válido (Pendiente/En Proceso)
+// B. La plantilla tenga el marcador de firma que ME corresponde a MÍ
+// C. NO haya firmado yo todavía ese documento específico
+
 $sql = "SELECT 
             d.folio,
             CONCAT(p.nombre, ' ', p.ap_paterno) AS nombre_docente,
             pt.nombre_plantilla AS nombre_documento,
-            DATE(d.fecha_solicitud) AS fecha
+            DATE(d.fecha_solicitud) AS fecha,
+            d.estado
         FROM Documentos d
         JOIN Personal p ON d.matricula_docente_solicitante = p.matricula
         JOIN PlantillasDocumentos pt ON d.id_plantilla = pt.id_plantilla
-        WHERE 
-            d.estado = 'Pendiente' 
-            AND pt.rol_firmante = ?"; // El admin solo ve las que él puede firmar
+        WHERE d.estado IN ($estados_busqueda)
+        
+        -- FILTRO: Que yo no haya firmado ya este documento
+        AND NOT EXISTS (
+            SELECT 1 FROM FirmasDocumento f 
+            WHERE f.folio_documento = d.folio AND f.matricula_firmante = '$admin_matricula'
+        )
 
-// 3. (Opcional) Añadir filtro de BÚSQUEDA
-$search_query = $_GET['search'] ?? '';
-$params = [$admin_rol];
-$types = "s";
+        AND (
+            -- LOGICA DE ROLES ESPECIFICA
+            
+            -- Caso 1: Soy DIRECTOR -> Busco {{firma_director}}
+            ('$rol_user' = 'DIRECTOR' AND pt.cuerpo LIKE '%{{firma_director}}%')
+            
+            OR 
+            
+            -- Caso 2: Soy SUBDIRECTOR -> Busco {{firma_subdirector}}
+            ('$rol_user' = 'SUBDIRECTOR' AND pt.cuerpo LIKE '%{{firma_subdirector}}%')
+            
+            OR 
+            
+            -- Caso 3: Soy JEFE DE ÁREA (El más complejo)
+            ('$rol_user' = 'JEFE_AREA' AND (
+                -- A. Soy Jefe de RH y el doc pide RH
+                ($depto_user = 2 AND pt.cuerpo LIKE '%{{firma_jefe_rh}}%')
+                OR
+                -- B. Soy Jefe de Escolares y el doc pide Escolares
+                ($depto_user = 5 AND pt.cuerpo LIKE '%{{firma_jefe_escolares}}%')
+                OR
+                -- C. Soy Jefe de Desarrollo y el doc pide Desarrollo
+                ($depto_user = 6 AND pt.cuerpo LIKE '%{{firma_jefe_desarrollo}}%')
+                OR
+                -- D. Soy el Jefe ACADÉMICO del docente (Mismo departamento)
+                -- Y el documento pide la firma genérica de jefe {{firma_jefe}}
+                (p.id_departamento = $depto_user AND pt.cuerpo LIKE '%{{firma_jefe}}%')
+            ))
+        )";
 
-if (!empty($search_query)) {
-    $sql .= " AND (p.nombre LIKE ? OR p.ap_paterno LIKE ?)";
-    $search_like = '%' . $search_query . '%';
-    $params[] = $search_like;
-    $params[] = $search_like;
-    $types .= "ss"; // Añadimos dos strings
+// 4. FILTROS EXTRA (Búsqueda y Orden)
+$search = $_GET['search'] ?? '';
+if (!empty($search)) {
+    $s = $conn->real_escape_string($search);
+    $sql .= " AND (p.nombre LIKE '%$s%' OR p.ap_paterno LIKE '%$s%')";
 }
 
-// 4. (Opcional) Añadir filtro de ORDEN
-$sort_by = $_GET['sort'] ?? 'fecha';
+$sort = $_GET['sort'] ?? 'fecha';
 $order = $_GET['order'] ?? 'ASC';
-// Lista blanca de columnas seguras para ordenar
-$safe_columns = ['folio', 'nombre_docente', 'nombre_documento', 'fecha'];
-
-if (in_array($sort_by, $safe_columns)) {
-    $sql .= " ORDER BY $sort_by " . ($order === 'DESC' ? 'DESC' : 'ASC');
+$valid_sorts = ['folio', 'nombre_docente', 'nombre_documento', 'fecha'];
+if (in_array($sort, $valid_sorts)) {
+    $sql .= " ORDER BY $sort " . ($order === 'DESC' ? 'DESC' : 'ASC');
 }
 
-// 5. Ejecutar la consulta
-$stmt = $conn->prepare($sql);
-$stmt->bind_param($types, ...$params);
-$stmt->execute();
-$result = $stmt->get_result();
-
+// Ejecutar
+$result = $conn->query($sql);
 $solicitudes = [];
 if ($result) {
     while ($row = $result->fetch_assoc()) {
         $solicitudes[] = $row;
     }
 }
-
-$conn->close();
-
-// 6. Devolver los resultados en JSON
 header('Content-Type: application/json');
 echo json_encode($solicitudes);
-exit();
 ?>

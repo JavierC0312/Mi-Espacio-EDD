@@ -37,6 +37,7 @@ try {
         
         // 2. Buscamos TODOS sus documentos (con sus nombres y rutas)
         $sql_docs = "SELECT 
+                        ed.folio_documento, 
                         ed.nombre_documento_manual, 
                         ed.ruta_archivo,
                         d.nombre_documento AS nombre_documento_sistema,
@@ -53,10 +54,12 @@ try {
         $documentos_list = [];
         if ($result_docs) {
             while ($row = $result_docs->fetch_assoc()) {
-                // Limpiamos los datos para el frontend
                 $documentos_list[] = [
                     'nombre' => $row['nombre_documento_manual'] ?? $row['nombre_documento_sistema'] ?? 'Documento sin nombre',
-                    'ruta' => $row['ruta_archivo'] ?? $row['ruta_pdf'] // Devolvemos la ruta correcta
+                    'ruta' => $row['ruta_archivo'] ?? $row['ruta_pdf'],
+                    
+                    // AGREGA ESTA LÍNEA:
+                    'folio' => $row['folio_documento'] // Necesitamos el folio para reportarlo
                 ];
             }
         }

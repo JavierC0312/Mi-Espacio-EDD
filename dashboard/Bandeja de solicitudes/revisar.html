@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revisión de Documento</title>
+    <link rel="stylesheet" href="../dashboard/Expedientes y solicitudes/expedientes.css">
+    <link rel="stylesheet" href="revisar.css">
+    <script src="revisar.js" defer></script>
+</head>
+<body>
+
+    <div class="container-revisar">
+        <header class="header-revisar">
+            <h1>Revisión de Documento</h1>
+        </header>
+
+        <div class="document-viewer">
+            <div class="paper-sheet">
+                <iframe id="doc-iframe" src=""></iframe>
+            </div>
+        </div>
+
+        <div class="actions-container">
+            <p>¿El documento está incorrecto? <a href="#" id="btn-editar-link">Editar</a></p>
+            
+            <div class="buttons-row">
+                <a href="bandeja.html" class="btn-cancelar">
+                    Cancelar
+                </a>
+
+                <button class="btn-firmar" id="btn-firmar">
+                    Añadir firma y enviar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-backdrop" class="modal-backdrop hidden"></div>
+    <div id="modal-editar" class="modal-editar hidden">
+        
+        <div class="modal-body">
+            <h3 style="margin-top: 0; color: #333;">Subir Corrección</h3>
+            <p style="margin-bottom: 15px;">Descargue el editable, realice los cambios y suba el PDF corregido.</p>
+            
+            <form id="form-correccion">
+                <textarea id="mensaje-admin" 
+                          placeholder="Escribe un mensaje para el docente explicando la corrección..." 
+                          rows="3" 
+                          style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 15px; box-sizing: border-box;"></textarea>
+
+                <input type="file" id="file-upload" name="archivo_editado" accept="application/pdf" style="display: none;">
+                
+                <p id="file-name-display" style="font-size: 0.9rem; color: #6C3483; font-weight: bold; min-height: 20px; margin-bottom: 15px;"></p>
+
+                <div class="modal-buttons-row">
+                    <button type="button" class="btn-modal btn-purple" onclick="document.getElementById('file-upload').click()">
+                        📂 Seleccionar PDF
+                    </button>
+                    
+                    <button type="button" class="btn-modal btn-green" id="btn-enviar-correccion" style="background-color: #28a745; color: white; display: none;">
+                        Enviar Corrección
+                    </button>
+
+                    <button type="button" class="btn-modal btn-red" id="btn-cancelar-modal">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</body>
+</html>

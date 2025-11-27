@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firmas Pendientes</title>
+    
+    <link rel="stylesheet" href="expedientes.css">
+    <link rel="stylesheet" href="solicitudes.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="firmas.js" defer></script>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header class="tabs">
+            <a href="../dashboard.html" class="tab">Mi perfil</a>
+            <a href="expedientes.html" class="tab">Expedientes</a>
+            <a href="solicitudes.html" class="tab">Mis solicitudes</a>
+            <a href="firmas.html" class="tab active" style="color: #6C3483; border-bottom: 3px solid #6C3483;">Firmas Pendientes</a>
+        </header>
+
+        <main class="content-wrapper">
+            
+            <section class="left-panel" style="flex: 1;"> <div class="filter-bar">
+                    <h3>Documentos que requieren su firma</h3>
+                    </div>
+
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>FOLIO</th>
+                                <th>DOCUMENTO</th>
+                                <th>SOLICITANTE</th>
+                                <th>FECHA SOLICITUD</th>
+                                <th>ACCIÓN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-firmas">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+</body>
+</html>

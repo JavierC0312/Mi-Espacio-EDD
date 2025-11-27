@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Solicitudes</title>
+    <link rel="stylesheet" href="expedientes.css">
+    <link rel="stylesheet" href="solicitudes.css"> 
+    <script src="solicitudes.js" defer></script>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header class="tabs">
+            <a href="../dashboard.html" class="tab">Mi perfil</a> <a href="expedientes.html" class="tab">Expedientes</a>
+            <a href="solicitudes.html" class="tab active">Mis solicitudes</a>
+            <a href="firmas.html" class="tab">Firmas Pendientes</a>
+        </header>
+
+        <main class="content-wrapper">
+            
+            <section class="left-panel" style="flex: 2;"> <div class="filter-bar">
+                    <label>Ver:</label>
+                    <select id="filtro-estado">
+                        <option value="Todos">Todas</option>
+                        <option value="Pendiente">Pendientes</option>
+                        <option value="Completado">Atendidas</option>
+                        <option value="Rechazado">Rechazadas</option>
+                    </select>
+                    <button class="btn-new" id="btn-solicitar-todo" style="background-color: #6C3483;">Solicitar Todo</button>
+                    <button class="btn-new" id="btn-nueva-solicitud">+ Nueva Solicitud</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>FOLIO</th>
+                                <th>DOCUMENTO</th>
+                                <th>ESTADO</th>
+                                <th>FECHA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-solicitudes">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="right-panel" style="flex: 1;">
+                
+                <div id="panel-detalles" class="details-box">
+                    <h3>Detalle de Solicitud</h3>
+                    <p class="placeholder-text">Selecciona una solicitud para ver los detalles.</p>
+                    <div id="info-content" class="hidden">
+                        <p><strong>Documento:</strong> <span id="det-doc"></span></p>
+                        <p><strong>Folio:</strong> <span id="det-folio"></span></p>
+                        <p><strong>Estado:</strong> <span id="det-estado"></span></p>
+                        
+                        <div id="caja-mensaje-admin" class="admin-msg hidden">
+                            <strong>💬 Mensaje del Administrador:</strong>
+                            <p id="txt-mensaje-admin"></p>
+                        </div>
+
+                        <div class="actions">
+                            <a href="#" id="btn-visualizar" class="btn btn-primary hidden">Ver Documento</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-nueva" class="details-box hidden">
+                    <h3>Nueva Solicitud</h3>
+                    <form id="form-solicitud">
+                        <label>¿Qué documento necesitas?</label>
+                        <select id="select-plantilla" required>
+                            <option value="">Cargando...</option>
+                        </select>
+                        
+                        <div class="form-actions">
+                            <button type="button" id="btn-cancelar-nueva" class="btn btn-secondary">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Solicitar</button>
+                        </div>
+                    </form>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+</body>
+</html>
